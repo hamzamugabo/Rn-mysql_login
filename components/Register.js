@@ -1,144 +1,154 @@
-import React, { Component } from 'react';
- 
-import { AppRegistry, StyleSheet, TextInput, View, Alert, Button, Text } from 'react-native';
- 
-class Register extends Component {
- 
-constructor(props) {
- 
-    super(props)
- 
+import React, { Component } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform
+} from "react-native";
+
+export default class Register extends Component {
+  static navigationOptions = {
+    title: "Register"
+  };
+  constructor() {
+    super();
+
     this.state = {
- 
-      UserName: '',
-      UserEmail: '',
-      UserPassword: ''
- 
-    }
- 
+      username: "",
+      email: "",
+      password: "",
+      loading: false,
+      disabled: false
+    };
   }
- 
-  UserRegistrationFunction = () =>{
- 
- 
- const { UserName }  = this.state ;
- const { UserEmail }  = this.state ;
- const { UserPassword }  = this.state ;
- 
- 
- 
-fetch('https://localhost/react_projects/mobile/User_Login.php', {
-  method: 'POST',
-  headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
- 
-    name: UserName,
- 
-    email: UserEmail,
- 
-    password: UserPassword
- 
-  })
- 
-}).then((response) => response.json())
-      .then((responseJson) => {
- 
-// Showing response message coming from server after inserting records.
-        Alert.alert(responseJson);
- 
-      }).catch((error) => {
-        console.error(error);
-      });
- 
- 
-  }
- 
+
+  saveData = () => {
+    this.setState({ loading: true, disabled: true }, () => {
+      fetch(
+        "https://90aa5564.ngrok.io/react_projects/mobile/user_registration1.php",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username: this.state.username,
+
+            email: this.state.email,
+
+            password: this.state.password
+          })
+        }
+      )
+        .then(response => response.json())
+        .then(responseJson => {
+          alert(responseJson);
+          this.setState({ loading: false, disabled: false });
+        })
+        .catch(error => {
+          console.error(error);
+          this.setState({ loading: false, disabled: false });
+        });
+    });
+  };
+
   render() {
     return (
- 
-<View style={styles.MainContainer}>
-
-        <Text style= {{ fontSize: 20, color: "#000", textAlign: 'center', marginBottom: 15 }}>User Registration Form</Text>
-  
+      <View style={styles.container}>
         <TextInput
-          
-          // Adding hint in Text Input using Place holder.
-          placeholder="Enter User Name"
- 
-          onChangeText={UserName => this.setState({UserName})}
- 
-          // Making the Under line Transparent.
-          underlineColorAndroid='transparent'
- 
-          style={styles.TextInputStyleClass}
+          underlineColorAndroid="transparent"
+          placeholder="username"
+          style={styles.textInput}
+          onChangeText={text => this.setState({ username: text })}
         />
- 
-        <TextInput
-          
-          // Adding hint in Text Input using Place holder.
-          placeholder="Enter User Email"
- 
-          onChangeText={UserEmail => this.setState({UserEmail})}
- 
-          // Making the Under line Transparent.
-          underlineColorAndroid='transparent'
- 
-          style={styles.TextInputStyleClass}
-        />
- 
-        <TextInput
-          
-          // Adding hint in Text Input using Place holder.
-          placeholder="Enter User Password"
- 
-          onChangeText={UserPassword => this.setState({UserPassword})}
- 
-          // Making the Under line Transparent.
-          underlineColorAndroid='transparent'
- 
-          style={styles.TextInputStyleClass}
 
+        <TextInput
+          underlineColorAndroid="transparent"
+          placeholder="email"
+          style={styles.textInput}
+          onChangeText={text => this.setState({ email: text })}
+        />
+        <TextInput
+          underlineColorAndroid="transparent"
+          placeholder="password"
+          style={styles.textInput}
+          onChangeText={password => this.setState({ password })}
           secureTextEntry={true}
         />
- 
-        <Button title="Click Here To Register" onPress={this.UserRegistrationFunction} color="#2196F3" />
-      
-  
- 
-</View>
-            
+
+        <TouchableOpacity
+          disabled={this.state.disabled}
+          activeOpacity={0.8}
+          style={styles.Btn}
+          onPress={this.saveData}
+        >
+          <Text style={styles.btnText}>Insert</Text>
+        </TouchableOpacity>
+
+        {this.state.loading ? <ActivityIndicator size="large" /> : null}
+
+        <View style={styles.signupTextCont}>
+          <Text style={styles.signupText}>Already have an account? </Text>
+          <TouchableOpacity onPress={()=>this.props.navigation.goBack()}>
+            <Text style={styles.signupButton}>Login</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     );
   }
 }
- 
-const styles = StyleSheet.create({
- 
-MainContainer :{
- 
-justifyContent: 'center',
-flex:1,
-margin: 10
-},
- 
-TextInputStyleClass: {
- 
-textAlign: 'center',
-marginBottom: 7,
-height: 40,
-borderWidth: 1,
-// Set border Hex Color Code Here.
- borderColor: '#2196F3',
 
- // Set border Radius.
- borderRadius: 5 ,
- 
-// Set border Radius.
- //borderRadius: 10 ,
-}
- 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#eee",
+    paddingHorizontal: 25,
+    paddingTop: Platform.OS == "ios" ? 20 : 0
+  },
+
+  textInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: "grey",
+    marginVertical: 5,
+    alignSelf: "stretch",
+    padding: 8,
+    fontSize: 16
+  },
+
+  Btn: {
+    backgroundColor: "rgba(0,0,0,0.6)",
+    alignSelf: "stretch",
+    padding: 10,
+    marginTop: 10,
+    marginBottom: 25
+  },
+
+  btnText: {
+    textAlign: "center",
+    color: "white",
+    fontSize: 16
+  },
+  signupTextCont: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "flex-end",
+    paddingVertical: 16,
+    flexDirection: "row"
+  },
+  signupText: {
+    color: "#12799f",
+    fontSize: 16
+  },
+  signupButton: {
+    color: "#12799f",
+    fontSize: 16,
+    fontWeight: "500"
+  }
 });
- 
-AppRegistry.registerComponent('Register', () => Register);
